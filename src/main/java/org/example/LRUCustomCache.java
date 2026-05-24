@@ -2,6 +2,7 @@ package org.example;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.locks.StampedLock;
 
 public class LRUCustomCache {
@@ -79,11 +80,13 @@ public class LRUCustomCache {
         LRUCache.moveToTail(newNode);
     }
 
-    private int validateGetValue(int value){
+    private Optional<Integer> validateGetValue(int value){
         if (value == -1){
             System.out.println("Value not found");
+            return Optional.empty();
+        } else {
+            return Optional.of(value);
         }
-        return value;
     }
 
     public void put (int key, int value) {
@@ -105,7 +108,7 @@ public class LRUCustomCache {
         }
     }
 
-    public int get (int key) {
+    public Optional<Integer> get (int key) {
         LRUCache LRUCache = getCache(key);
         long stamp = LRUCache.lock.tryOptimisticRead();
         Node node = LRUCache.cache.get(key);
