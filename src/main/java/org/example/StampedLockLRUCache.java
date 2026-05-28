@@ -5,12 +5,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.locks.StampedLock;
 
-public class LRUCustomCache {
-    private class Node {
+public class StampedLockLRUCache {
+    private static class Node {
         int key;
         int value;
-        Node prev;
-        Node next;
+        StampedLockLRUCache.Node prev;
+        StampedLockLRUCache.Node next;
 
         public Node(int key, int value) {
             this.key = key;
@@ -18,11 +18,11 @@ public class LRUCustomCache {
         }
     }
 
-    private class LRUCache {
-        private final Map<Integer,Node> cache = new HashMap<>();
+    private static class LRUCache {
+        private final Map<Integer, Node> cache = new HashMap<>();
         private final StampedLock lock = new StampedLock();
-        private final Node dummyHead = new Node(-1,-1);
-        private final Node dummyTail  = new Node(-1,-1);
+        private final Node dummyHead = new Node(-1, -1);
+        private final Node dummyTail = new Node(-1, -1);
 
         public LRUCache() {
             dummyHead.next = dummyTail;
@@ -41,14 +41,13 @@ public class LRUCustomCache {
             node.next = this.dummyTail;
             this.dummyTail.prev = node;
         }
-
     }
 
     private final int cacheSizeLimit;
     private final LRUCache[] cacheArray;
 
-    public LRUCustomCache(int capacity, int cacheArraySize) {
-        this.cacheSizeLimit = capacity/cacheArraySize;
+    public StampedLockLRUCache(int capacity, int cacheArraySize) {
+        this.cacheSizeLimit = capacity / cacheArraySize;
         cacheArray = new LRUCache[cacheArraySize];
         for (int i = 0; i < cacheArraySize; i++) {
             cacheArray[i] = new LRUCache();
@@ -60,11 +59,11 @@ public class LRUCustomCache {
         return cacheArray[Math.abs(cacheHit % cacheArray.length)];
     }
 
-    private boolean cacheContainsKey(Map<Integer,Node> cache,int key) {
+    private boolean cacheContainsKey(Map<Integer, Node> cache, int key) {
         return cache.containsKey(key);
     }
 
-    private void updateExistingNode(LRUCache LRUCache,int value, int key) {
+    private void updateExistingNode(LRUCache LRUCache, int value, int key) {
         Node existingNode = LRUCache.cache.get(key);
         existingNode.value = value;
         LRUCache.moveToTail(existingNode);
@@ -80,22 +79,21 @@ public class LRUCustomCache {
         LRUCache.moveToTail(newNode);
     }
 
-    private Optional<Integer> validateGetValue(int value){
-        if (value == -1){
-            System.out.println("Value not found");
+    private Optional<Integer> validateGetValue(int value) {
+        if (value == -1) {
             return Optional.empty();
         } else {
             return Optional.of(value);
         }
     }
 
-    public void put (int key, int value) {
+    public void put(int key, int value) {
         LRUCache LRUCache = getCache(key);
-        Map<Integer,Node> cache = LRUCache.cache;
+        Map<Integer, StampedLockLRUCache.Node> cache = LRUCache.cache;
         StampedLock lock = LRUCache.lock;
         long stamp = lock.writeLock();
         try {
-            if (cacheContainsKey(cache,key)) {
+            if (cacheContainsKey(cache, key)) {
                 updateExistingNode(LRUCache, value, key);
             } else {
                 if (cacheSizeReachedLimit(cache.size())) {
@@ -108,7 +106,7 @@ public class LRUCustomCache {
         }
     }
 
-    public Optional<Integer> get (int key) {
+    public Optional<Integer> get(int key) {
         LRUCache LRUCache = getCache(key);
         long stamp = LRUCache.lock.tryOptimisticRead();
         Node node = LRUCache.cache.get(key);
@@ -130,8 +128,7 @@ public class LRUCustomCache {
 
     synchronized public void printLinkedList() {
         for (int i = 0; i < cacheArray.length; i++) {
-            int LRUCacheNumber = i;
-            System.out.println("LRUCache LinkedList " + LRUCacheNumber + ":");
+            System.out.println("LRUCache LinkedList " + i + ":");
             Node temp = cacheArray[i].dummyHead.next;
             while (temp != null && temp.key != -1) {
                 System.out.println(temp.key);

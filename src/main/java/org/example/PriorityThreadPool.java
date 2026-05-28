@@ -7,7 +7,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 public class PriorityThreadPool {
     private boolean                                 isStopped = false;
-    private PriorityBlockingQueue                   taskQueue = null;
+    private PriorityBlockingQueue<Runnable>         taskQueue = null;
     private final List<PoolThreadRunnable>          listPoolThreadRunnables = new ArrayList<>();
 
     public PriorityThreadPool(int noOfThreads, int maxNoOfThreads) {

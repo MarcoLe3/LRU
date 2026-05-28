@@ -8,7 +8,7 @@ import java.util.concurrent.BlockingQueue;
 
 public class DefaultThreadPool {
     private boolean                                 isStopped = false;
-    private BlockingQueue                           taskQueue = null;
+    private BlockingQueue<Runnable>                 taskQueue = null;
     private final List<PoolThreadRunnable>          listPoolThreadRunnables = new ArrayList<>();
 
     public DefaultThreadPool(int noOfThreads, int maxNoOfThreads) {

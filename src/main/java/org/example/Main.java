@@ -5,7 +5,7 @@ import java.util.Random;
 public class Main {
     static void main() throws Exception {
         DefaultThreadPool defaultThreadPool = new DefaultThreadPool(3, 10);
-        LRUCustomCache cache = new LRUCustomCache(24, 4);
+        StampedLockLRUCache cache = new StampedLockLRUCache(24, 4);
         Random random = new Random();
         long start = System.currentTimeMillis();
 
